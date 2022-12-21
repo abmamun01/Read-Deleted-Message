@@ -10,15 +10,15 @@ data class NotificationEntity(
     val text: String,
     val package_name: String,
     var app_name: String,
-    var timeWhenPosted: Int,
-    var date: Int
+    var timeWhenPosted: String,
+    var date: String,
+    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
+    val appImage: ByteArray
 ) {
 
 
     @PrimaryKey(autoGenerate = true)
     var id: Int? = null
-
-    constructor(text: String, timeWhenPosted: Int, date: Int) : this(text, "",  "app_name", 3, 3)
 
 
 }

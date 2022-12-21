@@ -10,16 +10,21 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mamunsproject.deletedmessagereader_notification_reader.activity.AppSelectionActivity
+import com.mamunsproject.deletedmessagereader_notification_reader.activity.ReaderActivity
 import com.mamunsproject.deletedmessagereader_notification_reader.adapter.AppAdapter
 import com.mamunsproject.deletedmessagereader_notification_reader.mvvm.*
 import com.mamunsproject.deletedmessagereader_notification_reader.room_db.AppDatabase
 import com.mamunsproject.deletedmessagereader_notification_reader.room_db.AppModel
 import com.mamunsproject.deletedmessagereader_notification_reader.room_db.NotificationDatabase
 import com.mamunsproject.deletedmessagereader_notification_reader.room_db.NotificationEntity
+import kotlinx.android.synthetic.main.app_list_layout.*
 import kotlinx.coroutines.*
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity(), AppAdapter.AppItemClickInterface {
@@ -30,7 +35,8 @@ class MainActivity : AppCompatActivity(), AppAdapter.AppItemClickInterface {
     lateinit var adapter: AppAdapter
     lateinit var list: ArrayList<AppModel>
     lateinit var recyclerView: RecyclerView
-
+    lateinit var dateFormat: DateFormat
+    lateinit var formattedDate: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +48,13 @@ class MainActivity : AppCompatActivity(), AppAdapter.AppItemClickInterface {
         filter.addAction("com.example.notification_text")
         registerReceiver(receiver, filter)
 
+        recyclerView = findViewById(R.id.recyclerViewMain)
+
+
+        //  dateFormat = SimpleDateFormat("hh:mm a")
+        dateFormat = SimpleDateFormat("hh:mm a")
+        formattedDate = dateFormat.format(Date()).toString()
+        println(formattedDate)
 
         val appRepository = AppRepository(AppDatabase(this))
         val factory = ViewModelFactory(appRepository)
@@ -70,24 +83,37 @@ class MainActivity : AppCompatActivity(), AppAdapter.AppItemClickInterface {
     inner class MyBroadCastRecievier : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             var notificationText = intent!!.getStringExtra("notificationText")
+            var notificationAppName = intent.getStringExtra("notificationAppName")
             var notificationPackageName = intent.getStringExtra("notificationPackageName")
             var notificationTitle = intent.getStringExtra("notificationTitle")
-            var notificationTime = intent.getIntExtra("notificationTime",0)
-            var notificationDate = intent.getIntExtra("notificationDate",0)
+            var notificationTime = intent.getLongExtra("notificationTime", -1)
+            var notificationDate = intent.getStringExtra("notificationDate")
 
-           saveTheNotification(notificationPackageName!!,notificationText!!,notificationTime!!,notificationDate!!)
+            saveTheNotification(
+                notificationPackageName!!,
+                notificationTitle!!,
+                notificationText!!,
+                formattedDate,
+                formattedDate
+            )
 
 
             Log.d(
                 "NOtificatinxxx",
-                "From Broad Cast *** : Text    $notificationText     timeOfNot   $notificationTime    Date   $notificationDate"
+                "From Broad Cast *** : Text    $notificationText     notificationDate   ${formattedDate}    notificationPackageName   $notificationPackageName notificationTitle   $notificationTitle notificationTime   $notificationTime"
             )
         }
 
     }
 
 
-    fun saveTheNotification(packageName: String, text: String, time: Int, date: Int) {
+    fun saveTheNotification(
+        packageName: String,
+        appName: String,
+        text: String,
+        time: String,
+        date: String
+    ) {
 
         CoroutineScope(Dispatchers.IO).launch {
             for (i in appViewModel.getAllAppss().indices) {
@@ -97,12 +123,19 @@ class MainActivity : AppCompatActivity(), AppAdapter.AppItemClickInterface {
                     var textOfNotification = text
                     var timeOfNotification = time
                     var dateOfNotification = date
-
+                    var image = appViewModel.getAllAppss()[i].appImage
                     Log.d(
                         "NOtificatinxxx",
                         "saveTheNotification: Text    $textOfNotification     timeOfNot   $timeOfNotification    Date   $dateOfNotification"
                     )
-                    var model = NotificationEntity(textOfNotification, timeOfNotification, dateOfNotification)
+                    var model = NotificationEntity(
+                        textOfNotification,
+                        packageName,
+                        appName,
+                        timeOfNotification,
+                        dateOfNotification,
+                        image
+                    )
                     notificationViewModel.insert(model)
 
                 }
@@ -113,28 +146,31 @@ class MainActivity : AppCompatActivity(), AppAdapter.AppItemClickInterface {
 
     private fun initialize() {
 
-        CoroutineScope(Dispatchers.IO).launch {
-
-            adapter = AppAdapter(appViewModel.getAllAppss(), this@MainActivity)
-
-            recyclerView = findViewById(R.id.recyclerViewMain)
-            recyclerView.setHasFixedSize(true)
-            recyclerView.layoutManager = GridLayoutManager(this@MainActivity, 3)
-
-            recyclerView.adapter = adapter
+        MainScope().launch {
+            withContext(Dispatchers.IO) {
+                adapter = AppAdapter(appViewModel.getAllAppss(), this@MainActivity)
 
 
+
+                runOnUiThread {
+                    recyclerView.setHasFixedSize(true)
+                    recyclerView.layoutManager = GridLayoutManager(this@MainActivity, 3)
+
+                    recyclerView.adapter = adapter
+                }
+
+            }
         }
 
 
     }
 
-    override suspend fun onItemClick(groceryItem: AppModel) {
+    override suspend fun onItemClick(appItem: AppModel) {
 
+
+        val intent = Intent(this@MainActivity, ReaderActivity::class.java)
+        intent.putExtra("packageNameFromItem", appItem.package_name)
+        startActivity(intent)
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-
-    }
 }

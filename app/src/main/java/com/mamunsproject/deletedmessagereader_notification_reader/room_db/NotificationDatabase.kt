@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [NotificationEntity::class], version = 1)
+@Database(entities = [NotificationEntity::class], version = 6)
 abstract class NotificationDatabase : RoomDatabase() {
 
     abstract fun getNotificationDao(): NotificationDao
@@ -29,7 +29,7 @@ abstract class NotificationDatabase : RoomDatabase() {
             Room.databaseBuilder(
                 context.applicationContext,
                 NotificationDatabase::class.java,
-                "Notification.db"
+                "Notification6.db"
             ).build()
     }
 }

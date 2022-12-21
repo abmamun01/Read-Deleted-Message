@@ -43,20 +43,6 @@ data class AppModel(
         3
     )
 
-    constructor(
-        app_name: String,
-        package_name: String,
-        timeWhenPosted: Int,
-        date: Int,
-        appImage: ByteArray
-    ) : this(
-        app_name,
-        package_name,
-        package_name.toByteArray(),
-        false,
-        3,
-        3
-    )
 
 
 }
