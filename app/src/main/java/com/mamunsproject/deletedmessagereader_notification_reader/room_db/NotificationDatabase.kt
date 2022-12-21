@@ -5,15 +5,15 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [AppModel::class], version = 3)
-abstract class AppDatabase : RoomDatabase() {
+@Database(entities = [NotificationEntity::class], version = 1)
+abstract class NotificationDatabase : RoomDatabase() {
 
-    abstract fun getAppDao(): AppDao
+    abstract fun getNotificationDao(): NotificationDao
 
 
     companion object {
         @Volatile
-        private var instanceOfApp: AppDatabase? = null
+        private var instanceOfApp: NotificationDatabase? = null
         private val LOCK = Any()
 
         operator fun invoke(context: Context) = instanceOfApp ?: synchronized(LOCK) {
@@ -28,8 +28,8 @@ abstract class AppDatabase : RoomDatabase() {
         private fun createDatabase(context: Context) =
             Room.databaseBuilder(
                 context.applicationContext,
-                AppDatabase::class.java,
-                "AppDb3.db"
+                NotificationDatabase::class.java,
+                "Notification.db"
             ).build()
     }
 }

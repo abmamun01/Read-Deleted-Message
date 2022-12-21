@@ -100,16 +100,15 @@ class AppSelectionActivity : AppCompatActivity(), AppAdapter.AppItemClickInterfa
         }*/
 
 
-            var appName = app.app_name
-            var packageName = app.package_name
-            var icon = app.appImage
-            var isCheckeddd = app.isChecked
-            isCheckeddd = true
+        var appName = app.app_name
+        var packageName = app.package_name
+        var icon = app.appImage
+        var isCheckeddd = app.isChecked
+        isCheckeddd = true
 
-            var appModel = AppModel(appName, packageName, icon, isCheckeddd)
+        var appModel = AppModel(packageName, appName, icon, isCheckeddd)
 
-            appViewModel.insert(appModel)
-
+        appViewModel.insert(appModel)
 
 
     }

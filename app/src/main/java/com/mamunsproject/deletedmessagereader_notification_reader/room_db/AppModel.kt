@@ -9,19 +9,53 @@ import androidx.room.PrimaryKey
 data class AppModel(
     val package_name: String,
     val app_name: String,
-    @ColumnInfo(typeAffinity = ColumnInfo.BLOB) val appImage: ByteArray,
-    var isChecked: Boolean
+    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
+    val appImage: ByteArray,
+    var isChecked: Boolean,
+    var timeWhenPosted: Int,
+    var date: Int
 ) {
 
 
     @PrimaryKey(autoGenerate = true)
     var id: Int? = null
 
-    constructor(app_name: String, package_name: String,  appImage: ByteArray) : this(
+    constructor(app_name: String, package_name: String, appImage: ByteArray) : this(
         app_name,
         package_name,
         package_name.toByteArray(),
-        false
+        false,
+        3,
+        3
+    )
+
+    constructor(
+        app_name: String,
+        package_name: String,
+        appImage: ByteArray,
+        isChecked: Boolean
+    ) : this(
+        app_name,
+        package_name,
+        appImage,
+        false,
+        3,
+        3
+    )
+
+    constructor(
+        app_name: String,
+        package_name: String,
+        timeWhenPosted: Int,
+        date: Int,
+        appImage: ByteArray
+    ) : this(
+        app_name,
+        package_name,
+        package_name.toByteArray(),
+        false,
+        3,
+        3
     )
 
 
